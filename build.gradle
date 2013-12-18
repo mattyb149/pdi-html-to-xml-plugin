@@ -1,0 +1,57 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+project.ext.kettle_dependency_revision = 'TRUNK-SNAPSHOT'
+project.ext.metastore_dependency_revision = 'TRUNK-SNAPSHOT'
+
+project.repositories {
+  ivy {
+    url "http://repo.pentaho.org/artifactory/repo/"
+    layout  "pattern", {
+      ivy "[organisation]/[module]/[revision]/[module]-[revision].ivy.xml"
+      artifact "[organisation]/[module]/[revision]/[module]-[revision].jar"
+      m2compatible = true
+    }
+  }
+  maven {
+    url 'http://repo.pentaho.org/artifactory/repo'
+  }
+  mavenCentral()
+}
+
+configurations {
+  runtimeWithoutCompile {
+    transitive = false
+  }
+  zip
+}
+
+
+dependencies {
+  compile("pentaho-kettle:kettle-core:${project.ext.kettle_dependency_revision}")
+  compile("pentaho-kettle:kettle-engine:${project.ext.kettle_dependency_revision}")
+  //compile("pentaho:metastore:${project.ext.metastore_dependency_revision}")
+  compile fileTree(dir: 'lib-dist', include: '*.jar')
+  compile('net.sf.jtidy:jtidy:r938')            
+  runtimeWithoutCompile fileTree(dir: 'lib-dist', include: '*.jar')
+}
+
+
+task plugin(dependsOn:jar, type: Zip) {
+  into("${project.name}/") {
+    from jar.outputs.files
+    from fileTree(dir: 'package-res')
+  }
+  into("${project.name}/lib") {
+    from configurations.runtimeWithoutCompile
+  }
+}
+
+artifacts {
+  zip plugin
+}
+
+task createGradleWrapper(type: Wrapper) {
+  gradleVersion = '1.7'
+}
