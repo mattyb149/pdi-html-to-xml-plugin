@@ -31,7 +31,8 @@ configurations {
 dependencies {
   compile("pentaho-kettle:kettle-core:${project.ext.kettle_dependency_revision}")
   compile("pentaho-kettle:kettle-engine:${project.ext.kettle_dependency_revision}")
-  //compile("pentaho:metastore:${project.ext.metastore_dependency_revision}")
+  compile("pentaho-kettle:kettle-ui-swt:${project.ext.kettle_dependency_revision}")
+  compile("pentaho:metastore:${project.ext.metastore_dependency_revision}")
   compile fileTree(dir: 'lib-dist', include: '*.jar')
   compile('net.sf.jtidy:jtidy:r938')            
   runtimeWithoutCompile fileTree(dir: 'lib-dist', include: '*.jar')
