@@ -1,3 +1,11 @@
+/**
+ * (c) 2013,2014 Matt Burgess
+ * 
+ * Released under Apache 2.0
+ * 
+ * Code contributed by Roland Bouman, reused with author's permission:
+ * http://rpbouman.blogspot.com/2011/05/using-tidy-to-clean-webpages-with.html
+ */
 package org.pentaho.di.trans.steps.html2xml;
 
 import java.util.List;
@@ -11,6 +19,8 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaString;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
@@ -42,7 +52,7 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public void setDefault() {
     fieldname = "";
-
+    resultFieldName = "";
   }
 
   public String getFieldname() {
@@ -51,6 +61,14 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void setFieldname( String fieldname ) {
     this.fieldname = fieldname;
+  }
+  
+  public String getResultFieldName() {
+    return resultFieldName;
+  }
+
+  public void setResultFieldName( String resultFieldName ) {
+    this.resultFieldName = resultFieldName;
   }
   
   @Override
@@ -116,7 +134,11 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
     VariableSpace space, Repository repository, IMetaStore metaStore ) throws KettleStepException {
-    // Default: nothing changes to rowMeta
+    // Check if the result field exists, if not add it
+    ValueMetaInterface prevField = rowMeta.searchValueMeta( getResultFieldName() );
+    if(prevField == null) {
+      rowMeta.addValueMeta( new ValueMetaString( getResultFieldName() ) );
+    }
   }
 
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta,
@@ -163,13 +185,5 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
     Trans trans ) {
     return new Html2Xml( stepMeta, stepDataInterface, cnr, tr, trans );
-  }
-
-  public String getResultFieldName() {
-    return resultFieldName;
-  }
-
-  public void setResultFieldName( String resultFieldName ) {
-    this.resultFieldName = resultFieldName;
   }
 }

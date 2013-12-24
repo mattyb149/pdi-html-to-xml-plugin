@@ -11,6 +11,7 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -124,7 +125,7 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
     wResultFieldName.addModifyListener( lsMod );
     FormData fdResultFieldName = new FormData();
     fdResultFieldName.left = new FormAttachment( middle, margin );
-    fdResultFieldName.top = new FormAttachment( 0, margin );
+    fdResultFieldName.top = new FormAttachment( wFieldName, margin );
     fdResultFieldName.right = new FormAttachment( 100, 0 );
     wResultFieldName.setLayoutData( fdResultFieldName );
 
@@ -150,6 +151,14 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
         ok();
       }
     };
+    
+    // THE BUTTONS
+    wOK = new Button( shell, SWT.PUSH );
+    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+
+    setButtonPositions( new Button[] { wOK, wCancel }, margin, wResultFieldName );
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );
@@ -196,6 +205,7 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
     }
 
     input.setFieldname( wFieldName.getText() );
+    input.setResultFieldName( wResultFieldName.getText() );
     
     stepname = wStepname.getText(); // return value
 
@@ -207,6 +217,7 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
    */
   public void getData() {
     wFieldName.setText( Const.NVL( input.getFieldname(), "" ) );
+    wResultFieldName.setText( Const.NVL( input.getResultFieldName(), "" ) );
    
     wStepname.selectAll();
     wStepname.setFocus();
