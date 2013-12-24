@@ -30,21 +30,6 @@ public class Html2Xml extends BaseStep implements StepInterface {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
-  @Override
-  public boolean init( StepMetaInterface arg0, StepDataInterface arg1 ) {
-    boolean superInit = super.init( arg0, arg1 );
-    if(!superInit) return false;
-    
-    // Create and configure a JTidy instance
-    tidy = new Tidy();
-    // TODO choose between XML and XHTML
-    //tidy.setXHTML( true );
-    tidy.setXmlOut(true);
-    tidy.setOutputEncoding("UTF-8"); // TODO allow user to set?
-    tidy.setQuoteNbsp(false);
-    
-    return true;
-  }
 
   @Override
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
@@ -67,6 +52,19 @@ public class Html2Xml extends BaseStep implements StepInterface {
       setOutputDone();
       return false;
     }
+    
+    // Create and configure a JTidy instance (the authors recommend a new instance for each parse)
+    tidy = new Tidy();
+    if(meta.isOutputXHTML()) {
+      tidy.setXHTML( true );
+      tidy.setXmlOut( false );
+    }
+    else {
+      tidy.setXHTML( false );
+      tidy.setXmlOut( true );
+    }
+    tidy.setOutputEncoding( environmentSubstitute( Const.NVL( meta.getEncoding(), "UTF-8" ) ) );
+    tidy.setQuoteNbsp(false);
     
     //read the value of the html input field
     String fieldName = meta.getFieldname();
@@ -99,7 +97,7 @@ public class Html2Xml extends BaseStep implements StepInterface {
     String rawInputString = (String)outputRow[inputFieldIndex];
     String replacedNbspString = rawInputString.replace("&nbsp;","&#160;");
     
-    // Use JTidy to parse HTML to XML\
+    // Use JTidy to parse HTML to XML
     StringReader html = new StringReader(replacedNbspString);
     StringWriter xml = new StringWriter();
     tidy.parse(html, xml);

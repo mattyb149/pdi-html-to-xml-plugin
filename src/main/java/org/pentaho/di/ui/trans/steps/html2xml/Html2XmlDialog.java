@@ -12,6 +12,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -39,6 +40,9 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
   
   private Label wlResultFieldName;
   private TextVar wResultFieldName;
+  
+  private TextVar wEncoding;
+  private Button wOutputXhtml;
   
   private RowMetaInterface inputFields;
   
@@ -92,6 +96,7 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
     fdStepname.top = new FormAttachment( 0, margin );
     fdStepname.right = new FormAttachment( 100, 0 );
     wStepname.setLayoutData( fdStepname );
+    Control lastControl = wStepname;
 
     // The name of the field to validate
     //
@@ -101,33 +106,82 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment( 0, 0 );
     fdlFieldName.right = new FormAttachment( middle, 0 );
-    fdlFieldName.top = new FormAttachment( wStepname, margin );
+    fdlFieldName.top = new FormAttachment( lastControl, margin );
     wlFieldName.setLayoutData( fdlFieldName );
     wFieldName = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFieldName );
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment( middle, margin );
     fdFieldName.right = new FormAttachment( 100, 0 );
-    fdFieldName.top = new FormAttachment( wStepname, margin );
+    fdFieldName.top = new FormAttachment( lastControl, margin );
     wFieldName.setLayoutData( fdFieldName );
+    lastControl = wFieldName;
     
-    // Stepname line
+    // Result field name
     wlResultFieldName = new Label( shell, SWT.RIGHT );
     wlResultFieldName.setText( BaseMessages.getString( PKG, "Html2XmlDialog.ResultFieldName.Label" ) );
     props.setLook( wlResultFieldName );
     FormData fdlResultFieldName = new FormData();
     fdlResultFieldName.left = new FormAttachment( 0, 0 );
     fdlResultFieldName.right = new FormAttachment( middle, 0 );
-    fdlResultFieldName.top = new FormAttachment( wFieldName, margin );
+    fdlResultFieldName.top = new FormAttachment( lastControl, margin );
     wlResultFieldName.setLayoutData( fdlResultFieldName );
     wResultFieldName = new TextVar( transMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResultFieldName );
     wResultFieldName.addModifyListener( lsMod );
     FormData fdResultFieldName = new FormData();
     fdResultFieldName.left = new FormAttachment( middle, margin );
-    fdResultFieldName.top = new FormAttachment( wFieldName, margin );
+    fdResultFieldName.top = new FormAttachment( lastControl, margin );
     fdResultFieldName.right = new FormAttachment( 100, 0 );
     wResultFieldName.setLayoutData( fdResultFieldName );
+    lastControl = wResultFieldName;
+    
+    // Encoding line
+    //
+    Label wlEncoding = new Label( shell, SWT.RIGHT );
+    wlEncoding.setText( BaseMessages.getString( PKG, "Html2XmlDialog.Encoding.Label" ) );
+    props.setLook( wlEncoding );
+    FormData fdlEncoding = new FormData();
+    fdlEncoding = new FormData();
+    fdlEncoding.left = new FormAttachment( 0, 0 );
+    fdlEncoding.top = new FormAttachment( lastControl, margin );
+    fdlEncoding.right = new FormAttachment( middle, 0 );
+    wlEncoding.setLayoutData( fdlEncoding );
+    wEncoding = new TextVar( transMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wEncoding );
+    wEncoding.addModifyListener( lsMod );
+    FormData fdEncoding = new FormData();
+    fdEncoding = new FormData();
+    fdEncoding.left = new FormAttachment( middle, margin );
+    fdEncoding.top = new FormAttachment( lastControl, margin );
+    fdEncoding.right = new FormAttachment( 100, 0 );
+    wEncoding.setLayoutData( fdEncoding );
+    lastControl = wEncoding;
+
+    // Output XHTML or XML?
+    //
+    Label wlOutputXhtml = new Label( shell, SWT.RIGHT );
+    wlOutputXhtml.setText( BaseMessages.getString( PKG, "Html2XmlDialog.OutputXHTML.Label" ) );
+    props.setLook( wlOutputXhtml );
+    FormData fdlOutputXhtml = new FormData();
+    fdlOutputXhtml.left = new FormAttachment( 0, 0 );
+    fdlOutputXhtml.top = new FormAttachment( lastControl, margin );
+    fdlOutputXhtml.right = new FormAttachment( middle, 0 );
+    wlOutputXhtml.setLayoutData( fdlOutputXhtml );
+    wOutputXhtml = new Button( shell, SWT.CHECK );
+    props.setLook( wOutputXhtml );
+    wOutputXhtml.setToolTipText( BaseMessages
+      .getString( PKG, "Html2XmlDialog.OutputXHTML.Tooltip" ) );
+    FormData fdOutputXhtml = new FormData();
+    fdOutputXhtml.left = new FormAttachment( middle, 0 );
+    fdOutputXhtml.top = new FormAttachment( lastControl, margin );
+    wOutputXhtml.setLayoutData( fdOutputXhtml );
+    wOutputXhtml.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setChanged(true);
+      }
+    });
+    lastControl = wOutputXhtml;
 
     // TODO: grab field list in thread in the background...
     //
@@ -158,7 +212,7 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, wResultFieldName );
+    setButtonPositions( new Button[] { wOK, wCancel }, margin, lastControl );
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );
@@ -206,6 +260,8 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
 
     input.setFieldname( wFieldName.getText() );
     input.setResultFieldName( wResultFieldName.getText() );
+    input.setEncoding( wEncoding.getText() );
+    input.setOutputXHTML( wOutputXhtml.getSelection() );
     
     stepname = wStepname.getText(); // return value
 
@@ -218,7 +274,9 @@ public class Html2XmlDialog extends BaseStepDialog implements StepDialogInterfac
   public void getData() {
     wFieldName.setText( Const.NVL( input.getFieldname(), "" ) );
     wResultFieldName.setText( Const.NVL( input.getResultFieldName(), "" ) );
-   
+    wEncoding.setText( Const.NVL( input.getEncoding(), "UTF-8") );
+    wOutputXhtml.setSelection( input.isOutputXHTML() );
+    
     wStepname.selectAll();
     wStepname.setFocus();
   }

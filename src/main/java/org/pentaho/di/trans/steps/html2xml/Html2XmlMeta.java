@@ -48,11 +48,19 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
 
   /** The result field */
   private String resultFieldName;
+  
+  /** The encoding of the output */
+  private String encoding;
+  
+  /** Whether to output XHTML (default is XML) */
+  private boolean outputXHTML = false;
 
   @Override
   public void setDefault() {
     fieldname = "";
     resultFieldName = "";
+    encoding = "UTF-8";
+    outputXHTML = false;
   }
 
   public String getFieldname() {
@@ -71,6 +79,22 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
     this.resultFieldName = resultFieldName;
   }
   
+  public String getEncoding() {
+    return encoding;
+  }
+
+  public void setEncoding( String encoding ) {
+    this.encoding = encoding;
+  }
+
+  public boolean isOutputXHTML() {
+    return outputXHTML;
+  }
+
+  public void setOutputXHTML( boolean outputXHTML ) {
+    this.outputXHTML = outputXHTML;
+  }
+  
   @Override
   public StepDataInterface getStepData() {
     return new Html2XmlData();
@@ -79,7 +103,10 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
   @Override
   public Object clone() {
     Html2XmlMeta retval = (Html2XmlMeta) super.clone();
-
+    retval.setFieldname( getFieldname() );
+    retval.setResultFieldName( getResultFieldName() );
+    retval.setEncoding( getEncoding() );
+    retval.setOutputXHTML( isOutputXHTML() );
     return retval;
   }
   
@@ -88,6 +115,8 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
 
     retval.append( XMLHandler.addTagValue( "fieldname", fieldname ) );
     retval.append( XMLHandler.addTagValue( "resultfieldname", resultFieldName ) );
+    retval.append( XMLHandler.addTagValue( "encoding", encoding ) );
+    retval.append( XMLHandler.addTagValue( "xhtml", outputXHTML ? "Y" : "N" ) );
 
     return retval.toString();
   }
@@ -101,7 +130,8 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       fieldname = XMLHandler.getTagValue( stepnode, "fieldname" );
       resultFieldName = XMLHandler.getTagValue( stepnode, "resultfieldname" );
-      
+      encoding = XMLHandler.getTagValue( stepnode, "encoding" );
+      outputXHTML = "Y".equalsIgnoreCase(XMLHandler.getTagValue( stepnode, "xhtml" ) );      
     } catch ( Exception e ) {
       throw new KettleXMLException( BaseMessages.getString(
         PKG, "Html2XmlMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
@@ -113,6 +143,8 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       fieldname = rep.getStepAttributeString( id_step, "fieldname" );
       resultFieldName = rep.getStepAttributeString( id_step, "resultfieldname" );
+      encoding = rep.getStepAttributeString( id_step, "encoding" );
+      outputXHTML = rep.getStepAttributeBoolean( id_step, "xhtml" );
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
         PKG, "Html2XmlMeta.Exception.UnexpectedErrorInReadingStepInfoFromRepository" ), e );
@@ -124,6 +156,8 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
     try {
       rep.saveStepAttribute( id_transformation, id_step, "fieldname", fieldname );
       rep.saveStepAttribute( id_transformation, id_step, "resultfieldname", resultFieldName );
+      rep.saveStepAttribute( id_transformation, id_step, "encoding", encoding );
+      rep.saveStepAttribute( id_transformation, id_step, "xhtml", outputXHTML );
      
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString(
@@ -180,6 +214,8 @@ public class Html2XmlMeta extends BaseStepMeta implements StepMetaInterface {
           PKG, "Html2XmlMeta.CheckResult.ResultFieldSpecified" ), stepMeta );
     }
     remarks.add( cr );
+    
+    // TODO add encoding check
   }
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta tr,
