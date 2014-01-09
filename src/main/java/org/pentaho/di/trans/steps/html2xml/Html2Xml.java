@@ -39,18 +39,18 @@ public class Html2Xml extends BaseStep implements StepInterface {
         
     Object[] r = getRow();
     
-    if ( first ) {
-      
-      data.setInputRowMeta( getInputRowMeta() );
-      data.setOutputRowMeta( getInputRowMeta().clone() );  
-      first = false;
-    }
-    
     if ( r == null ) {
       // no more input to be expected...
 
       setOutputDone();
       return false;
+    }
+    
+    if ( first ) {
+      
+      data.setInputRowMeta( getInputRowMeta() );
+      data.setOutputRowMeta( getInputRowMeta().clone() );  
+      first = false;
     }
     
     // Create and configure a JTidy instance (the authors recommend a new instance for each parse)
